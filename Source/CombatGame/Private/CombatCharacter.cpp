@@ -11,9 +11,9 @@ ACombatCharacter::ACombatCharacter()
 void ACombatCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	InitializeCharacter();
 }
+
+// --- Public Methods ---
 
 void ACombatCharacter::InitializeCharacter() 
 {
@@ -30,7 +30,7 @@ void ACombatCharacter::InitializeCharacter()
 	UE_LOG(LogTemp, Warning, TEXT("Character's current damage : %f"), CurrentDamage);
 }
 
-void ACombatCharacter::TakeDamage(float DamageAmount)
+void ACombatCharacter::ReceiveDamage(float DamageAmount)
 {
 	if (DamageAmount <= 0.0f || IsDead()) 
 	{
@@ -54,13 +54,17 @@ void ACombatCharacter::Attack(ACombatCharacter* Target)
 		return;
 	}
 
-	Target->TakeDamage(CurrentDamage);
+	Target->ReceiveDamage(CurrentDamage);
+	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("%s attacks %s for %.1f damage!"), *this->GetActorNameOrLabel(), *Target->GetActorNameOrLabel(), CurrentDamage));
+	OnCharacterAttack.Broadcast(*this->GetActorNameOrLabel(), *Target->GetActorNameOrLabel(), CurrentDamage);
 }
 
 bool ACombatCharacter::IsDead() const
 {
 	return CurrentHealth <= 0.0f;
 }
+
+// --- Private Methods ---
 
 void ACombatCharacter::Die() 
 {

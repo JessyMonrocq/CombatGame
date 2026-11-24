@@ -5,16 +5,26 @@
 #include "CharacterDataAsset.h"
 #include "CombatCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnCharacterAttack,
+	FString, Character,
+	FString, Target,
+	float, Damage
+);
+
 UCLASS()
 class COMBATGAME_API ACombatCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-// Properties
+// --- Properties ---
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Stats")
 	TObjectPtr<UCharacterDataAsset> CharacterStats;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterAttack OnCharacterAttack;
 
 private:
 
@@ -23,12 +33,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Character Stats")
 	float CurrentDamage;
 
-// Methods
+// --- Methods ---
 public:
 	ACombatCharacter();
 
 	void InitializeCharacter();
-	void TakeDamage(float DamageAmount);
+	void ReceiveDamage(float DamageAmount);
 	void Attack(ACombatCharacter* Target);
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
@@ -39,6 +49,5 @@ protected:
 
 private:
 	
-	UFUNCTION(Category = "Combat")
 	void Die();
 };

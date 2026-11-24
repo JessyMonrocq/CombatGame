@@ -22,20 +22,41 @@ enum class ECombatTurn : uint8
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
-	FOnCombatEnded,
-	ECombatState,
-	FinalState
+	FOnCombatStateChanged,
+	FText,
+	CombatState
 );
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnPlayerTurn,
+	bool,
+	PlayerTurn
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnCombatInfos,
+	FString, Character,
+	FString, Target,
+	float, Damage
+);
+
 
 UCLASS()
 class COMBATGAME_API ACombatManager : public AActor
 {
 	GENERATED_BODY()
 	
-// Properties
+// --- Properties ---
 public:
+
 	UPROPERTY(BlueprintAssignable, Category = "Combat")
-	FOnCombatEnded OnCombatEnded;
+	FOnCombatStateChanged OnCombatStateChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FOnPlayerTurn OnPlayerTurn;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCombatInfos OnCombatInfos;
 
 protected:
 
@@ -45,16 +66,35 @@ protected:
 	TObjectPtr<ACombatCharacter> EnemyCharacter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	ECombatState CombatState;
+	ECombatState CombatState = ECombatState::NotStarted;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	ECombatTurn CurrentTurn;
+	ECombatTurn CurrentTurn = ECombatTurn::PlayerTurn;
 
-// Methods
+private:
+
+	FTimerHandle StartingDelayTimer;
+
+	const float StartingDelay = 2.0f;
+
+// --- Methods ---
 public:	
 	ACombatManager();
 
 	void InitializeCombat();
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void PlayerAttack();
+	void EnemyAttack();
+	void EndTurn();
+
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	void SetCombatState(ECombatState NewState);
+	void CheckCombatEnd();
+	void EndCombat(ECombatState FinalState);
+
+	UFUNCTION()
+	void ForwardCombatInfos(const FString Character, const FString Target, float Damage);
 };
