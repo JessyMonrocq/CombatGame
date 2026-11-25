@@ -93,7 +93,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void PlayerAttack();
-	void EnemyAttack();
+	void AttackTarget(ACombatCharacter* Character, ACombatCharacter* Target);
 	void EndTurn();
 
 protected:

@@ -38,10 +38,11 @@ public:
 
 	void InitializeCharacter();
 	void ReceiveDamage(float DamageAmount);
-	void Attack(ACombatCharacter* Target);
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	bool IsDead() const;
+	UFUNCTION()
+	float GetCurrentDamage();
 
 protected:
 	virtual void BeginPlay() override;

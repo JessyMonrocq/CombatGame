@@ -66,45 +66,44 @@ void ACombatManager::InitializeCombat()
 
 void ACombatManager::PlayerAttack()
 {
-	if (CombatState != ECombatState::InProgress)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Combat not in Progress!"));
-		return;
-	}
-
-	if (CombatPhase != ECombatPhase::WaitingForAction || CurrentTurn != ECombatTurn::PlayerTurn)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Not player's turn OR not awaiting action yet!"));
-		return;
-	}
-
-	PlayerCharacter->Attack(EnemyCharacter);
-
-	CheckCombatEnd();
-
-	if (CombatState == ECombatState::InProgress)
-	{
-		EndTurn();
-		// TODO : Handle Enemy's turn in different script
-		DELAY(StartingDelay, { EnemyAttack(); });
-	}
+	AttackTarget(PlayerCharacter, EnemyCharacter);
 }
 
-void ACombatManager::EnemyAttack()
+void ACombatManager::AttackTarget(ACombatCharacter* Character, ACombatCharacter* Target) 
 {
-	if (CombatState != ECombatState::InProgress || CurrentTurn != ECombatTurn::EnemyTurn)
+	if (CombatState != ECombatState::InProgress || CombatPhase != ECombatPhase::WaitingForAction)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Combat not in Progress OR not enemy's turn!"));
+		UE_LOG(LogTemp, Warning, TEXT("Combat not in Progress or Awaiting action!"));
 		return;
 	}
 
-	EnemyCharacter->Attack(PlayerCharacter);
+	if (!IsValid(Character) || !IsValid(Target))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Character OR Target not valid references!"));
+		return;
+	}
+
+	FText AttackLogText = FText::Format(
+		NSLOCTEXT("Combat", "AttackLog", "{0} attacks {1} for {2} damage!"),
+		FText::FromString(Character->GetActorNameOrLabel()),
+		FText::FromString(Target->GetActorNameOrLabel()),
+		FText::AsNumber(Character->GetCurrentDamage())
+	);
+	OnCombatInfos.Broadcast(AttackLogText);
+
+	Target->ReceiveDamage(Character->GetCurrentDamage());
 
 	CheckCombatEnd();
 
 	if (CombatState == ECombatState::InProgress)
 	{
 		EndTurn();
+
+		if (CurrentTurn == ECombatTurn::EnemyTurn)
+		{
+			// TODO : Handle Enemy's turn in different script
+			DELAY(StartingDelay, { AttackTarget(EnemyCharacter, PlayerCharacter); });
+		}
 	}
 }
 

@@ -47,27 +47,14 @@ void ACombatCharacter::ReceiveDamage(float DamageAmount)
 	}
 }
 
-void ACombatCharacter::Attack(ACombatCharacter* Target) 
-{
-	if (!IsValid(Target) || Target->IsDead() || IsDead() || Target == this)
-	{
-		return;
-	}
-
-	FText AttackLogText = FText::Format(
-		NSLOCTEXT("Combat", "AttackLog", "{0} attacks {1} for {2} damage!"),
-		FText::FromString(*this->GetActorNameOrLabel()),
-		FText::FromString(*Target->GetActorNameOrLabel()),
-		FText::AsNumber(CurrentDamage)
-	);
-	OnCharacterAction.Broadcast(AttackLogText);
-
-	Target->ReceiveDamage(CurrentDamage);
-}
-
 bool ACombatCharacter::IsDead() const
 {
 	return CurrentHealth <= 0.0f;
+}
+
+float ACombatCharacter::GetCurrentDamage()
+{
+	return CurrentDamage;
 }
 
 // --- Private Methods ---
