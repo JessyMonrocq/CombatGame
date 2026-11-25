@@ -5,11 +5,10 @@
 #include "CharacterDataAsset.h"
 #include "CombatCharacter.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
-	FOnCharacterAttack,
-	FString, Character,
-	FString, Target,
-	float, Damage
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnCharacterAction,
+	FText,
+	ActionText
 );
 
 UCLASS()
@@ -24,7 +23,7 @@ public:
 	TObjectPtr<UCharacterDataAsset> CharacterStats;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnCharacterAttack OnCharacterAttack;
+	FOnCharacterAction OnCharacterAction;
 
 private:
 

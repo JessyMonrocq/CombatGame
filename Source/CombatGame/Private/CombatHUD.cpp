@@ -17,9 +17,12 @@ void UCombatHUD::NativeConstruct()
     Super::NativeConstruct();
 
     AttackButton->SetVisibility(ESlateVisibility::Hidden);
-    CombatInfosText->SetVisibility(ESlateVisibility::Hidden);
+    CombatInfosTextBlock->SetVisibility(ESlateVisibility::Hidden);
 
-    CombatManagerRef = Cast<ACombatManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ACombatManager::StaticClass()));
+    if (!IsDesignTime()) 
+    {
+        CombatManagerRef = Cast<ACombatManager>(UGameplayStatics::GetActorOfClass(this, ACombatManager::StaticClass()));
+    }
 
     if (IsValid(CombatManagerRef)) 
     {
@@ -52,18 +55,17 @@ void UCombatHUD::DisplayAttackButton(bool Display)
 
 void UCombatHUD::DisplayCombatState(const FText CombatState)
 {
-    CombatStateText->SetText(CombatState);
+    CombatStateTextBlock->SetText(CombatState);
 }
 
-void UCombatHUD::DisplayCombatInfos(const FString Character, const FString Target, const float Damage)
+void UCombatHUD::DisplayCombatInfos(const FText CombatInfosText)
 {
-    if (CombatInfosText->GetVisibility() == ESlateVisibility::Hidden)
+    if (CombatInfosTextBlock->GetVisibility() == ESlateVisibility::Hidden)
     {
-        CombatInfosText->SetVisibility(ESlateVisibility::Visible);
+        CombatInfosTextBlock->SetVisibility(ESlateVisibility::Visible);
     }
 
-    FString msg = FString::Printf(TEXT("%s attacks %s for %.1f damage points!"), *Character, *Target, Damage);
-    CombatInfosText->SetText(FText::FromString(msg));
+    CombatInfosTextBlock->SetText(CombatInfosText);
 
-    DELAY(CombatInfosTime, { CombatInfosText->SetVisibility(ESlateVisibility::Hidden); });
+    DELAY(CombatInfosTime, { CombatInfosTextBlock->SetVisibility(ESlateVisibility::Hidden); });
 }

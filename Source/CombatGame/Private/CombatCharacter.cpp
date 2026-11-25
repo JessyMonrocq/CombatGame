@@ -54,9 +54,15 @@ void ACombatCharacter::Attack(ACombatCharacter* Target)
 		return;
 	}
 
+	FText AttackLogText = FText::Format(
+		NSLOCTEXT("Combat", "AttackLog", "{0} attacks {1} for {2} damage!"),
+		FText::FromString(*this->GetActorNameOrLabel()),
+		FText::FromString(*Target->GetActorNameOrLabel()),
+		FText::AsNumber(CurrentDamage)
+	);
+	OnCharacterAction.Broadcast(AttackLogText);
+
 	Target->ReceiveDamage(CurrentDamage);
-	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("%s attacks %s for %.1f damage!"), *this->GetActorNameOrLabel(), *Target->GetActorNameOrLabel(), CurrentDamage));
-	OnCharacterAttack.Broadcast(*this->GetActorNameOrLabel(), *Target->GetActorNameOrLabel(), CurrentDamage);
 }
 
 bool ACombatCharacter::IsDead() const

@@ -28,8 +28,8 @@ void ACombatManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (IsValid(PlayerCharacter) && IsValid(EnemyCharacter))
 	{
-		PlayerCharacter->OnCharacterAttack.RemoveDynamic(this, &ACombatManager::ForwardCombatInfos);
-		EnemyCharacter->OnCharacterAttack.RemoveDynamic(this, &ACombatManager::ForwardCombatInfos);
+		PlayerCharacter->OnCharacterAction.RemoveDynamic(this, &ACombatManager::ForwardCombatInfos);
+		EnemyCharacter->OnCharacterAction.RemoveDynamic(this, &ACombatManager::ForwardCombatInfos);
 	}
 
 	Super::EndPlay(EndPlayReason);
@@ -48,8 +48,8 @@ void ACombatManager::InitializeCombat()
 	PlayerCharacter->InitializeCharacter();
 	EnemyCharacter->InitializeCharacter();
 
-	PlayerCharacter->OnCharacterAttack.AddDynamic(this, &ACombatManager::ForwardCombatInfos);
-	EnemyCharacter->OnCharacterAttack.AddDynamic(this, &ACombatManager::ForwardCombatInfos);
+	PlayerCharacter->OnCharacterAction.AddDynamic(this, &ACombatManager::ForwardCombatInfos);
+	EnemyCharacter->OnCharacterAction.AddDynamic(this, &ACombatManager::ForwardCombatInfos);
 
 	if (PlayerCharacter->IsDead() || EnemyCharacter->IsDead())
 	{
@@ -58,15 +58,23 @@ void ACombatManager::InitializeCombat()
 	}
 
 	SetCombatState(ECombatState::InProgress);
+	CombatPhase = ECombatPhase::WaitingForAction;
+
 	CurrentTurn = ECombatTurn::PlayerTurn;
 	OnPlayerTurn.Broadcast(CurrentTurn == ECombatTurn::PlayerTurn);
 }
 
 void ACombatManager::PlayerAttack()
 {
-	if (CombatState != ECombatState::InProgress || CurrentTurn != ECombatTurn::PlayerTurn)
+	if (CombatState != ECombatState::InProgress)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Combat not in Progress OR not player's turn!"));
+		UE_LOG(LogTemp, Warning, TEXT("Combat not in Progress!"));
+		return;
+	}
+
+	if (CombatPhase != ECombatPhase::WaitingForAction || CurrentTurn != ECombatTurn::PlayerTurn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not player's turn OR not awaiting action yet!"));
 		return;
 	}
 
@@ -117,6 +125,22 @@ void ACombatManager::SetCombatState(ECombatState NewState)
 	OnCombatStateChanged.Broadcast(msg);
 }
 
+void ACombatManager::HandleCombatPhases() 
+{
+	if (CombatState != ECombatState::InProgress || CombatPhase == ECombatPhase::WaitingForAction) 
+	{
+		return;
+	}
+
+	// Display Attack message
+	// Delay
+	// Display Health bar change
+	// Delay
+	// Display next character turn
+	// Delay
+	// Transition Turn
+}
+
 void ACombatManager::CheckCombatEnd()
 {
 	if (EnemyCharacter->IsDead())
@@ -142,7 +166,7 @@ void ACombatManager::EndCombat(ECombatState FinalState)
 	SetCombatState(FinalState);
 }
 
-void ACombatManager::ForwardCombatInfos(const FString Character, const FString Target, float Damage)
+void ACombatManager::ForwardCombatInfos(const FText CombatInfosText)
 {
-	OnCombatInfos.Broadcast(Character, Target, Damage);
+	OnCombatInfos.Broadcast(CombatInfosText);
 }

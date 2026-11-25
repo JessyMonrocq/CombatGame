@@ -15,6 +15,16 @@ enum class ECombatState : uint8
 };
 
 UENUM(BlueprintType)
+enum class ECombatPhase : uint8
+{
+	WaitingForAction,
+	DisplayMessage,
+	ExecutingAction,
+	TurnTransition
+};
+
+// TODO : Replace enum by a List of Character's play order !
+UENUM()
 enum class ECombatTurn : uint8
 {
 	PlayerTurn,
@@ -33,13 +43,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	PlayerTurn
 );
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	FOnCombatInfos,
-	FString, Character,
-	FString, Target,
-	float, Damage
+	FText,
+	CombatInfosText
 );
-
 
 UCLASS()
 class COMBATGAME_API ACombatManager : public AActor
@@ -49,13 +57,13 @@ class COMBATGAME_API ACombatManager : public AActor
 // --- Properties ---
 public:
 
-	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	UPROPERTY()
 	FOnCombatStateChanged OnCombatStateChanged;
 
-	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	UPROPERTY()
 	FOnPlayerTurn OnPlayerTurn;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY()
 	FOnCombatInfos OnCombatInfos;
 
 protected:
@@ -68,13 +76,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	ECombatState CombatState = ECombatState::NotStarted;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	ECombatPhase CombatPhase = ECombatPhase::TurnTransition;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	ECombatTurn CurrentTurn = ECombatTurn::PlayerTurn;
 
 private:
 
-	FTimerHandle StartingDelayTimer;
-
-	const float StartingDelay = 2.0f;
+	const float StartingDelay = 2.5f;
+	const float CombatPhaseDelay = 1.5f;
 
 // --- Methods ---
 public:	
@@ -93,9 +102,10 @@ protected:
 
 private:
 	void SetCombatState(ECombatState NewState);
+	void HandleCombatPhases();
 	void CheckCombatEnd();
 	void EndCombat(ECombatState FinalState);
 
 	UFUNCTION()
-	void ForwardCombatInfos(const FString Character, const FString Target, float Damage);
+	void ForwardCombatInfos(const FText CombatInfosText);
 };

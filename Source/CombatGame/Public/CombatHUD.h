@@ -28,10 +28,10 @@ private:
 	TObjectPtr<UButton> AttackButton;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> CombatStateText;
+	TObjectPtr<UTextBlock> CombatStateTextBlock;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> CombatInfosText;
+	TObjectPtr<UTextBlock> CombatInfosTextBlock;
 
 	UPROPERTY()
 	TObjectPtr<ACombatManager> CombatManagerRef;
@@ -47,5 +47,5 @@ public:
 	void DisplayCombatState(const FText CombatState);
 
 	UFUNCTION()
-	void DisplayCombatInfos(const FString Character, const FString Target, const float Damage);
+	void DisplayCombatInfos(const FText CombatInfosText);
 };
