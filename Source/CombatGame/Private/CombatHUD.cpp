@@ -31,6 +31,20 @@ void UCombatHUD::NativeConstruct()
     }
 }
 
+void UCombatHUD::NativeDestruct()
+{
+    if (IsValid(CombatManagerRef))
+    {
+        CombatManagerRef->OnPlayerTurn.RemoveDynamic(this, &UCombatHUD::DisplayAttackButton);
+
+        CombatManagerRef->OnCombatStateChanged.RemoveDynamic(this, &UCombatHUD::DisplayCombatState);
+
+        CombatManagerRef->OnCombatInfos.RemoveDynamic(this, &UCombatHUD::DisplayCombatInfos);
+    }
+
+    Super::NativeDestruct();
+}
+
 void UCombatHUD::DisplayAttackButton(bool Display) 
 {
     AttackButton->SetVisibility(Display ? ESlateVisibility::Visible : ESlateVisibility::Hidden);

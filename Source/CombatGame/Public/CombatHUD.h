@@ -20,6 +20,7 @@ class COMBATGAME_API UCombatHUD : public UUserWidget
 protected:
 
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 private:
 

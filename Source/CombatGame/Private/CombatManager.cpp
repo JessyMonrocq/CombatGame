@@ -24,6 +24,17 @@ void ACombatManager::BeginPlay()
 	});
 }
 
+void ACombatManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (IsValid(PlayerCharacter) && IsValid(EnemyCharacter))
+	{
+		PlayerCharacter->OnCharacterAttack.RemoveDynamic(this, &ACombatManager::ForwardCombatInfos);
+		EnemyCharacter->OnCharacterAttack.RemoveDynamic(this, &ACombatManager::ForwardCombatInfos);
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
 // --- Public Methods ---
 
 void ACombatManager::InitializeCombat()
