@@ -26,11 +26,6 @@ void ACombatManager::BeginPlay()
 
 void ACombatManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (IsValid(PlayerCharacter) && IsValid(EnemyCharacter))
-	{
-		PlayerCharacter->OnCharacterAction.RemoveDynamic(this, &ACombatManager::ForwardCombatInfos);
-		EnemyCharacter->OnCharacterAction.RemoveDynamic(this, &ACombatManager::ForwardCombatInfos);
-	}
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -47,9 +42,6 @@ void ACombatManager::InitializeCombat()
 
 	PlayerCharacter->InitializeCharacter();
 	EnemyCharacter->InitializeCharacter();
-
-	PlayerCharacter->OnCharacterAction.AddDynamic(this, &ACombatManager::ForwardCombatInfos);
-	EnemyCharacter->OnCharacterAction.AddDynamic(this, &ACombatManager::ForwardCombatInfos);
 
 	if (PlayerCharacter->IsDead() || EnemyCharacter->IsDead())
 	{
@@ -163,9 +155,4 @@ void ACombatManager::EndCombat(ECombatState FinalState)
 	}
 
 	SetCombatState(FinalState);
-}
-
-void ACombatManager::ForwardCombatInfos(const FText CombatInfosText)
-{
-	OnCombatInfos.Broadcast(CombatInfosText);
 }

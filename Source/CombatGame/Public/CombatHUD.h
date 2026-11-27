@@ -33,6 +33,12 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> CombatInfosTextBlock;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UProgressBar> PlayerHealthBar;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UProgressBar> EnemyHealthBar;
+
 	UPROPERTY()
 	TObjectPtr<ACombatManager> CombatManagerRef;
 
@@ -48,4 +54,11 @@ public:
 
 	UFUNCTION()
 	void DisplayCombatInfos(const FText CombatInfosText);
+
+private:
+
+	UFUNCTION()
+	void UpdatePlayerHealth(float CurrentHealth, float MaxHealth);
+	UFUNCTION()
+	void UpdateEnemyHealth(float CurrentHealth, float MaxHealth);
 };

@@ -26,8 +26,7 @@ void ACombatCharacter::InitializeCharacter()
 	CurrentHealth = CharacterStats->MaxHealth;
 	CurrentDamage = CharacterStats->Damage;
 
-	UE_LOG(LogTemp, Warning, TEXT("Character's current health : %f"), CurrentHealth);
-	UE_LOG(LogTemp, Warning, TEXT("Character's current damage : %f"), CurrentDamage);
+	OnHealthChanged.Broadcast(CurrentHealth, CharacterStats->MaxHealth);
 }
 
 void ACombatCharacter::ReceiveDamage(float DamageAmount)
@@ -38,8 +37,7 @@ void ACombatCharacter::ReceiveDamage(float DamageAmount)
 	}
 
 	CurrentHealth = FMath::Max(0.0f, CurrentHealth - DamageAmount);
-
-	UE_LOG(LogTemp, Warning, TEXT("Remaining Health : %f"), CurrentHealth);
+	OnHealthChanged.Broadcast(CurrentHealth, CharacterStats->MaxHealth);
 
 	if (IsDead()) 
 	{

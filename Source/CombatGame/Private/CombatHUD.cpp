@@ -31,6 +31,10 @@ void UCombatHUD::NativeConstruct()
         CombatManagerRef->OnCombatStateChanged.AddDynamic(this, &UCombatHUD::DisplayCombatState);
 
         CombatManagerRef->OnCombatInfos.AddDynamic(this, &UCombatHUD::DisplayCombatInfos);
+
+        CombatManagerRef->PlayerCharacter->OnHealthChanged.AddDynamic(this, &UCombatHUD::UpdatePlayerHealth);
+
+        CombatManagerRef->EnemyCharacter->OnHealthChanged.AddDynamic(this, &UCombatHUD::UpdateEnemyHealth);
     }
 }
 
@@ -43,10 +47,16 @@ void UCombatHUD::NativeDestruct()
         CombatManagerRef->OnCombatStateChanged.RemoveDynamic(this, &UCombatHUD::DisplayCombatState);
 
         CombatManagerRef->OnCombatInfos.RemoveDynamic(this, &UCombatHUD::DisplayCombatInfos);
+
+        CombatManagerRef->PlayerCharacter->OnHealthChanged.RemoveDynamic(this, &UCombatHUD::UpdatePlayerHealth);
+
+        CombatManagerRef->EnemyCharacter->OnHealthChanged.RemoveDynamic(this, &UCombatHUD::UpdateEnemyHealth);
     }
 
     Super::NativeDestruct();
 }
+
+// --- Public Methods ---
 
 void UCombatHUD::DisplayAttackButton(bool Display) 
 {
@@ -68,4 +78,16 @@ void UCombatHUD::DisplayCombatInfos(const FText CombatInfosText)
     CombatInfosTextBlock->SetText(CombatInfosText);
 
     DELAY(CombatInfosTime, { CombatInfosTextBlock->SetVisibility(ESlateVisibility::Hidden); });
+}
+
+// --- Private Methods ---
+
+void UCombatHUD::UpdatePlayerHealth(float CurrentHealth, float MaxHealth)
+{
+    PlayerHealthBar->SetPercent(CurrentHealth / MaxHealth);
+}
+
+void UCombatHUD::UpdateEnemyHealth(float CurrentHealth, float MaxHealth)
+{
+    EnemyHealthBar->SetPercent(CurrentHealth / MaxHealth);
 }

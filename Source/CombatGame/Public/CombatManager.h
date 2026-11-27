@@ -66,12 +66,12 @@ public:
 	UPROPERTY()
 	FOnCombatInfos OnCombatInfos;
 
-protected:
-
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<ACombatCharacter> PlayerCharacter;
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<ACombatCharacter> EnemyCharacter;
+
+protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	ECombatState CombatState = ECombatState::NotStarted;
@@ -105,7 +105,4 @@ private:
 	void HandleCombatPhases();
 	void CheckCombatEnd();
 	void EndCombat(ECombatState FinalState);
-
-	UFUNCTION()
-	void ForwardCombatInfos(const FText CombatInfosText);
 };
